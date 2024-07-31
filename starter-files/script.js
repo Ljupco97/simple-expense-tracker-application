@@ -10,7 +10,7 @@ const expenseButton = document.querySelector('#submitExpense');
 const expensesList = document.querySelector('#expensesList');
 valuesArray = [];
 
-
+idToEdit=undefined;
 
 
 
@@ -26,34 +26,56 @@ class Value {
 };
 
 expenseButton.addEventListener('click', (event) => {
-  const randomNumber =  Math.floor(Math.random() * 100000);
-
-  const descriptionValue = descriptionInput.value;
-  const amountValue = amountInput.value;
-  const dateValue = dateInput.value;
-  const categoryValue = categoryInput.value;
-  const id = randomNumber;
-
-  const values1 = new Value(descriptionValue,amountValue,dateValue,categoryValue,id);
+  if(this.idToEdit === undefined){
+    const randomNumber =  Math.floor(Math.random() * 100000);
+    const descriptionValue = descriptionInput.value;
+    const amountValue = amountInput.value;
+    const dateValue = dateInput.value;
+    const categoryValue = categoryInput.value;
+    const id = randomNumber;
   
-
-  valuesArray.push(values1);
- 
-
- console.log(valuesArray)
-
- if(descriptionValue){
-  renderArr();
-  saveTasks()
+    const values1 = new Value(descriptionValue,amountValue,dateValue,categoryValue,id);
+    
   
-  descriptionInput.value = '';
-  amountInput.value = '';
-  dateInput.value = '';
- } else {
-  alert('Please enter a Description');
- }
+    
+    if(!descriptionValue || !amountValue || !dateValue ){
+      alert('Please fill all required inputs');
+      return;
+   } 
+    
+    valuesArray.push(values1);
+    renderArr();
+    saveTasks()
+    
+    descriptionInput.value = '';
+    amountInput.value = '';
+    dateInput.value = '';
+    }else{
+    let elemToEdit = this.valuesArray.find(elem=> elem.id === this.idToEdit)
+    if(elemToEdit){
+      const descriptionValue = descriptionInput.value;
+      const amountValue = amountInput.value;
+      const dateValue = dateInput.value;
+      const categoryValue = categoryInput.value;
+      if(!descriptionValue || !amountValue || !dateValue ){
+        alert('Please fill all required inputs');
+        return;
+     } 
+      elemToEdit.description = descriptionValue;
+      elemToEdit.amount = amountValue;
+      elemToEdit.date = dateValue;
+      elemToEdit.category = categoryValue;
+      renderArr();
+      saveTasks()
+    }
 
- 
+    descriptionInput.value = '';
+    amountInput.value = '';
+    dateInput.value = '';
+    this.idToEdit = undefined;
+  }
+
+
  
 });
 
@@ -75,6 +97,7 @@ const renderArr = () =>{
   for(let elem of valuesArray){
     let row = `
           <tr id="tr-${elem.id}">
+                <td scope="col">${elem.id}</td>
                 <td scope="col">${elem.description}</td>
                 <td scope="col">${elem.amount}</td>
                 <td scope="col">${elem.date}</td>
@@ -112,17 +135,13 @@ loadTasks();
 
 function myfunc(id) {
   const objId = valuesArray.find(obj => obj.id === id);
-  console.log(objId);
 
   descriptionInput.value = `${objId.description}`;
   amountInput.value = `${objId.amount}`;
   dateInput.value = `${objId.date}`;
   categoryInput.value = `${objId.category}`;
+  this.idToEdit = id;
 
-
-  valuesArray = valuesArray.filter(value => value.id !== id);
-
-  
 };
 
 
@@ -150,7 +169,7 @@ function sortExpensesDown(){
 
 
 
-// TASK 5 SORT THE EXPENSES //
+// TASK 5  //
 
 
 function saveTasks(){
